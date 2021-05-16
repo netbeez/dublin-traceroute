@@ -22,7 +22,7 @@ import (
 // Program constants and default values
 const (
 	ProgramName        = "Dublin Traceroute"
-	ProgramVersion     = "v0.1"
+	ProgramVersion     = "v0.2"
 	ProgramAuthorName  = "Andrea Barberio"
 	ProgramAuthorInfo  = "https://insomniac.slackware.it"
 	DefaultSourcePort  = 12345

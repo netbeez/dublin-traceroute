@@ -326,7 +326,20 @@ func (d UDPv4) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 			// This is our packet, let's fill the probe data up
 			probe.Flowhash = flowhash
 			probe.IsLast = bytes.Equal(rpu.Header.Src.To4(), d.Target.To4()) || isPortUnreachable
-			probe.Name = rpu.Header.Src.String() // TODO compute this field
+
+			// Reverse lookup
+			names, err := net.LookupAddr(rpu.Header.Src.String())
+			// Lookup address may have trailing '.', so trim it if it does
+			if err == nil && len(names) > 0 {
+				if last := len(names[0]) - 1; last >= 0 && names[0][last] == '.' {
+					probe.Name = names[0][:last]
+				} else {
+					probe.Name = names[0]
+				}
+			} else {
+				probe.Name = rpu.Header.Src.String()
+			}
+
 			probe.RttUsec = uint64(rpu.Timestamp.Sub(spu.Timestamp)) / 1000
 			probe.NATID = NATID
 			probe.ZeroTTLForwardingBug = (rpu.InnerIP().TTL == 0)
