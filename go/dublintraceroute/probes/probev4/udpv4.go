@@ -277,14 +277,11 @@ func (d UDPv4) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 		sentUDP := spu.UDP()
 		probe := results.Probe{
 			Sent: results.Packet{
-				Timestamp: results.UnixUsec(spu.Timestamp),
 				IP: results.IP{
-					SrcIP: spu.LocalAddr,
 					DstIP: sentIP.Dst,
 					TTL:   uint8(sentIP.TTL),
 				},
 				UDP: &results.UDP{
-					SrcPort: uint16(sentUDP.Src),
 					DstPort: uint16(sentUDP.Dst),
 				},
 			},
@@ -310,21 +307,13 @@ func (d UDPv4) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 			NATID := rpu.InnerUDP().Csum - sentUDP.Csum
 			// TODO this works when the source port is fixed. Allow for variable
 			//      source port too
-			flowhash, err := computeFlowhash(rpu)
-			if err != nil {
-				log.Print(err)
-				continue
-			}
-			description := "Unknown"
+
 			isPortUnreachable := false
 			if rpu.ICMP().Type == inet.ICMPDestUnreachable && rpu.ICMP().Code == 3 {
 				isPortUnreachable = true
-				description = "Destination port unreachable"
-			} else if rpu.ICMP().Type == inet.ICMPTimeExceeded && rpu.ICMP().Code == 0 {
-				description = "TTL expired in transit"
 			}
+
 			// This is our packet, let's fill the probe data up
-			probe.Flowhash = flowhash
 			probe.IsLast = bytes.Equal(rpu.Header.Src.To4(), d.Target.To4()) || isPortUnreachable
 
 			// Reverse lookup
@@ -342,22 +331,9 @@ func (d UDPv4) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 
 			probe.RttUsec = uint64(rpu.Timestamp.Sub(spu.Timestamp)) / 1000
 			probe.NATID = NATID
-			probe.ZeroTTLForwardingBug = (rpu.InnerIP().TTL == 0)
 			probe.Received = &results.Packet{
-				Timestamp: results.UnixUsec(rpu.Timestamp),
-				ICMP: &results.ICMP{
-					Type:        uint8(rpu.ICMP().Type),
-					Code:        uint8(rpu.ICMP().Code),
-					Description: description,
-				},
 				IP: results.IP{
 					SrcIP: rpu.Header.Src,
-					DstIP: spu.LocalAddr,
-					TTL:   uint8(rpu.InnerIP().TTL),
-				},
-				UDP: &results.UDP{
-					SrcPort: uint16(rpu.InnerUDP().Src),
-					DstPort: uint16(rpu.InnerUDP().Dst),
 				},
 			}
 			// break, since this is a response to the sent probe

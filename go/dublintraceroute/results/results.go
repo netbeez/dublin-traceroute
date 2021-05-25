@@ -13,16 +13,16 @@ import (
 
 // IP represents some information from the IP header.
 type IP struct {
-	SrcIP net.IP `json:"src"`
-	DstIP net.IP `json:"dst"`
-	ID    uint16 `json:"id"`
-	TTL   uint8  `json:"ttl"`
+	SrcIP net.IP `json:"src,omitempty"`
+	DstIP net.IP `json:"dst,omitempty"`
+	ID    uint16 `json:"id,omitempty"`
+	TTL   uint8  `json:"ttl,omitempty"`
 }
 
 // UDP represents some information from the UDP header.
 type UDP struct {
-	SrcPort uint16 `json:"sport"`
-	DstPort uint16 `json:"dport"`
+	SrcPort uint16 `json:"sport,omitempty"`
+	DstPort uint16 `json:"dport,omitempty"`
 }
 
 // ICMP represents some information from the ICMP header.
@@ -107,7 +107,6 @@ func (um UnixUsec) MarshalJSON() ([]byte, error) {
 
 // Packet represents some information of a sent or received packet.
 type Packet struct {
-	Timestamp UnixUsec `json:"timestamp"`
 	IP        IP       `json:"ip"`
 	UDP       *UDP     `json:"udp,omitempty"`
 	ICMP      *ICMP    `json:"icmp,omitempty"`
@@ -116,14 +115,14 @@ type Packet struct {
 
 // Probe holds information about a dublin-traceroute probe.
 type Probe struct {
-	Flowhash             uint16  `json:"flowhash"`
+	Flowhash             uint16  `json:"flowhash,omitempty"`
 	IsLast               bool    `json:"is_last"`
 	Name                 string  `json:"name"`
 	NATID                uint16  `json:"nat_id"`
 	RttUsec              uint64  `json:"rtt_usec"`
 	Sent                 Packet  `json:"sent"`
 	Received             *Packet `json:"received"`
-	ZeroTTLForwardingBug bool    `json:"zerottl_forwarding_bug"`
+	ZeroTTLForwardingBug bool    `json:"zerottl_forwarding_bug,omitempty"`
 }
 
 // Results is the main container type for a dublin-traceroute set of results.

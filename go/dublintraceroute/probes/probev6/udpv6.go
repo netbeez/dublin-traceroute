@@ -255,7 +255,7 @@ func (d UDPv6) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 		sentUDP := spu.UDP()
 		probe := results.Probe{
 			Sent: results.Packet{
-				Timestamp: results.UnixUsec(spu.Timestamp),
+				//Timestamp: results.UnixUsec(spu.Timestamp),
 				IP: results.IP{
 					SrcIP: spu.LocalAddr,
 					DstIP: spu.RemoteAddr,
@@ -315,7 +315,7 @@ func (d UDPv6) Match(sent []probes.Probe, received []probes.ProbeResponse) resul
 			probe.RttUsec = uint64(rpu.Timestamp.Sub(spu.Timestamp)) / 1000
 			probe.ZeroTTLForwardingBug = (rpu.InnerIPv6().HopLimit == 0)
 			probe.Received = &results.Packet{
-				Timestamp: results.UnixUsec(rpu.Timestamp),
+				//Timestamp: results.UnixUsec(rpu.Timestamp),
 				ICMP: &results.ICMP{
 					Type:        uint8(icmp.Type),
 					Code:        uint8(icmp.Code),
